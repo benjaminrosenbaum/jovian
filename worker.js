@@ -5,7 +5,7 @@ importScripts('entities.js');
 importScripts('behavior.js?cb=22');
 importScripts('zones.js');
 importScripts('commands.js');
-importScripts('./target/scala-2.11/scala-js-stuff-fastopt.js')
+importScripts('./target/scala-2.11/scala-js-jovian-fastopt.js')
 importScripts('collisions.js?cb=2');
 
 
