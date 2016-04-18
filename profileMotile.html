@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Jovian: Profile Motile</title>
+
+        <!-- Scripts -->
+       <!--script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script--> 
+       <!--script src="./MathJax.js"></script-->
+       <script src="./extensions.js"></script>
+       <script src="./geometry.js"></script>
+       <script src="./shapes.js"></script>
+       <script src="./entities.js"></script>
+       <script src="./parseUri.js"></script>
+       <script src="./flocks.js"></script>
+       <script>
+
+
+          var QueryString = function () {
+            // This function is anonymous, is executed immediately and 
+            // the return value is assigned to QueryString!
+            var query_string = {};
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+              var pair = vars[i].split("=");
+                  // If first entry with this name
+              if (typeof query_string[pair[0]] === "undefined") {
+                query_string[pair[0]] = pair[1];
+                  // If second entry with this name
+              } else if (typeof query_string[pair[0]] === "string") {
+                var arr = [ query_string[pair[0]], pair[1] ];
+                query_string[pair[0]] = arr;
+                  // If third or later entry with this name
+              } else {
+                query_string[pair[0]].push(pair[1]);
+              }
+            } 
+              return query_string;
+          } ();
+
+          window.onload = function () {
+              var canvasEl = document.querySelector('.experiment-canvas');
+              var canvas = canvasEl.getContext('2d');
+              canvas.lineWidth = 0.8;
+   
+              var motileType = QueryString.kind;  
+              var motile = { pos : { x: 30, y: 30}, 
+                              energy: QueryString.energy || 20, 
+                              size: QueryString.size || 50,
+                              fertility: QueryString.fertility || 0 };
+              var view = { frameCount : QueryString.frameCount || 1234 };
+
+              var sh = Renderers[motileType].getShape(motile, view);
+              var bigger = sh.scaled(motile.size);
+              var rotated = bigger.rotated( QueryString.rotation || 1.5);
+              var placed = rotated.at(new Point(200, 200));
+              placed.draw(canvas)
+
+          };
+       </script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+        <style>
+            .experiment-title {
+                width: 100%;
+                border-bottom: 1px solid #DDD;
+            }
+
+            .experiment-summary {
+                text-align: right;
+                margin-top: 3px;
+                font-style: italic;
+                margin-right: 5px;
+                margin-bottom: 20px;
+            }
+            .experiment-canvas {
+                border: 2px solid #DDD;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="post-title experiment-title">
+                A Jovian Motile
+            </div>
+            <div class="experiment-summary">
+                Parameters: kind, energy, fertility, size, frameCount, rotation...
+            </div>
+        <center>
+            <div style="position:relative">
+                <div style="float:left">
+                    <canvas class ="experiment-canvas" width="800" height="500"></canvas>
+                </div>
+            </div>
+        </center>
+    </body>
+      

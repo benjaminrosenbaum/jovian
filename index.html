@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Flocks</title>
+
+        <!-- Scripts -->
+       <!--script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script--> 
+       <!--script src="./MathJax.js"></script-->
+       <script src="./extensions.js"></script>
+       <script src="./geometry.js"></script>
+       <script src="./shapes.js"></script>
+       <script src="./entities.js"></script>
+       <script src="./parseUri.js"></script>
+       <script src="./flocks.js"></script>
+       <script src="./zones.js"></script>
+       <script src="./commands.js"></script>
+       <script>
+          window.onload = function () {
+              var canvas = document.querySelector('.experiment-canvas');
+              var readout = document.querySelector('#you');
+              initClient(canvas, readout);
+          };
+       </script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+        <style>
+            .experiment-title {
+                width: 100%;
+                border-bottom: 1px solid #DDD;
+            }
+
+            .experiment-summary {
+                text-align: right;
+                margin-top: 3px;
+                font-style: italic;
+                margin-right: 5px;
+                margin-bottom: 20px;
+            }
+            .experiment-canvas {
+                border: 2px solid #DDD;
+            }
+            .readout {
+                border: 2px solid #DDD;
+                padding: 5px;
+                margin-left: 5px;
+                width: 100%;
+                height: 238px;
+            }
+            .readout .show { font-weight: bold; }
+        </style>
+    </head>
+    <body>
+        <div class="wrapper">
+            <div class="post-title experiment-title">
+                Jovian
+            </div>
+            <div class="experiment-summary">
+                Life in a gas giant.
+            </div>
+        <center>
+            <div style="position:relative">
+                <div style="float:left">
+                    <canvas class ="experiment-canvas" width="800" height="500"></canvas>
+                </div>
+                <div style="float:left">
+                    <div class="readout" id="you"><div><span id="name"></span><i>(you)</i></div>
+                        <div>Vigor:</div><div class="show" id="vigor"></div>
+                        <div>Health:</div><div class="show" id="health"></div>
+                        <div>Fertility:</div><div class="show" id="fertility">0</div>
+                        <div>Score:</div><div class="show" id="score">0</div>
+                    </div>
+                    <div class="readout" id="inquire"><!--Something you've selected:-->
+<div>Instructions: <ul><li>Eat the yellow Flutterbyes <li>&amp; the green Frillists, <li>avoid the big Viprishes, <li>only fight blue Ravalas from above<li>don't run out of energy.</ul></div>
+<b>TODO</b><ul><li>gestation, childbirth, aging, childrearing <li>bubbles &amp; clouds<li>multiple zones<li>spawn locally<li>herding</ul>
+                    </div>
+                </div>
+            </div>
+        </center>
+    </body>
+      

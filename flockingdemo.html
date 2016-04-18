@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Flocks</title>
+
+        <!-- Scripts -->
+        <script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+        <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        
+    <script src="/static/js/projects/flockingdemo.js"></script>
+    <script>
+        window.onload = function () {
+            var canvas = document.querySelector('.experiment-canvas');
+            world = new World (canvas);
+            world.start();
+        };
+    </script>
+
+
+        <!-- Styles -->
+        <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700' rel='stylesheet' type='text/css'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+        <link rel="stylesheet" type="text/css" href="/static/css/main.min.css"/>
+        
+    <style>
+        label.slider {
+            position: relative;
+            margin-right: 5px;
+            top: -7px;
+        }
+        input {
+            margin-bottom: 15px;
+        }
+    </style>
+
+
+        <!-- SEO -->
+        
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+
+        <style>
+            .experiment-title {
+                width: 100%;
+                border-bottom: 1px solid #DDD;
+            }
+
+            .experiment-summary {
+                text-align: right;
+                margin-top: 3px;
+                font-style: italic;
+                margin-right: 5px;
+                margin-bottom: 20px;
+            }
+
+            .experiment-canvas {
+                border: 2px solid #DDD;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="wrapper">
+            <div class="post-title experiment-title">
+                Flocks
+            </div>
+            <div class="experiment-summary">
+                A simulation of bird flocking behavior with HTML5 canvas.
+            </div>
+
+            
+    <center>
+        <canvas class ="experiment-canvas" width="600" height="300"></canvas>
+        <br><br>
+        <div style="width: 600px">
+            <div style="width: 37%; float: left; text-align: left;">
+                <label for="separation" class="slider">Separation</label><input id="separation" type="range" value="1" min="0" max="2" step="0.1"><br>
+                <label for="alignment" class="slider">Alignment&nbsp;&nbsp;</label><input id="alignment" type="range" value="1" min="0" max="2" step="0.1"><br>
+                <label for="cohesion" class="slider">Cohesion&nbsp;&nbsp;&nbsp;</label><input id="cohesion" type="range" value="1" min="0" max="2" step="0.1"><br>
+            </div>
+            <div style="width: 62%; display: inline-block; text-align: left;">
+                Play with the sliders on the left to change the parameters. Click on the canvas to disrupt the flock.<br><br><b>Separation</b> ensures that the birds don't get crowded and move too close to each other. <b>Alignment</b> controls the level at which the birds tend to move in the same direction. <b>Cohesion</b> is responsible for "togetherness", it controls the level at which the birds steer towards the center of the flock.
+            </div>
+        </div>
+    </center>
+
+<!-- sources: http://adityaraghavan.com/projects/flocking/  -->
+            
+        </div>
+    </body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>Flocks Test</title>
+
+        <!-- Scripts -->
+       <!--script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script--> 
+       <!--script src="./MathJax.js"></script-->
+       <script src="./target/scala-2.11/scala-js-stuff-fastopt.js"></script>
+       <script src="./extensions.js"></script>
+       <script src="./geometry.js"></script>
+       <script src="./entities.js"></script>
+       <script src="./flocks.js"></script>
+       <script src="./behavior.js"></script>
+       <script src="./zones.js"></script>
+       <script src="./collisions.js"></script>
+   </head>
+   <body>    
+       <script>
+
+		var testMotiles = [
+		 	new Entities.Motile(new Entities.Entity("A1", "Beast"), new Vector(-0.1,0.3), new Vector(5, 1.5), new Point(50, 50)),
+		 	new Entities.Motile(new Entities.Entity("A2", "Flutterbye"), new Vector(-0.1,0.3), new Vector(-2, 0.5), new Point(250, 350))
+		 ];
+
+		var zone = new Zone("TEST", testMotiles);
+
+
+        function report(results) {
+         	var expected = JSON.stringify(results.expected);
+         	var actual = JSON.stringify(results.actual);
+         	var result = (expected == actual)	
+         					?  "ok" 
+         					: "ERROR! Expected " + expected + ", got " + actual + " " + (results.message || "");
+         	document.write(result + "\n<br/>\n");
+         }
+
+        function result(expected, actual, message) { return {"expected": expected, "actual" : actual, "message" : message }; }
+
+        function areEqual(expected, actual, message) {
+          if (!actual.equals) throw "no equals method in " + actual + "just use result(expected, actual)"
+        	var actualStr =  JSON.stringify(actual);
+          var expectedStr = JSON.stringify(expected);
+
+          var msg = (message || "details:") + " got " + actualStr + ", expected " + expectedStr;
+         	return result(actual.equals(expected), true, msg); 
+        }
+
+        function testMove(startPoint, vel, endPoint, maxSpeed) {
+        		var beast = zone.motiles[0].setAcceleration(Vector.NULL);
+        		if (maxSpeed) {
+        			beast.getMaxSpeed = CONSTANCY(maxSpeed); 
+        		}
+         		var beast = beast.setVelocity(vel).moveTo(startPoint);
+         		return result(endPoint, beast.step().pos);
+         }
+
+        var SE = new Point(Plane.Width, Plane.Height);
+		    var cross = [new Point(-2,3),new Point(2,-1), new Point(1,2), new Point(-1,0)];
+		    var crossCenter = new Point(0, 1);	
+         
+        var Tests = {
+         	"failyTest" : function() { return result(1, -1);},
+         	"roundtrip  world" : function() { 
+         		var expected = JSON.stringify(zone);
+         		return result(expected, JSON.stringify(Zone.fromJSON(expected))); },
+         	"beast type found" : function() { return result(!!Renderers.getByType("Beast").getShape, true); },
+         	"wrap/bind beast southwest" : function() { return testMove(new Point(10, 10), new Vector(-20, -20), new Point(SE.x-10, 0), 1000);},     
+          "wrap/bind beast northeast" : function() { return testMove(SE, new Vector(20, 20), new Point(20, SE.y), 1000);},     
+          //"wrap beast southwest" : function() { return testMove(new Point(10, 10), new Vector(-20, -20), new Point(SE.x-10, 0));},     
+          //"wrap beast northeast" : function() { return testMove(SE, new Vector(20, 20), new Point(20, SE.y));},     
+          //"bind beast southwest" : function() { return testMove(new Point(10, 10), new Vector(-20, -20), new Point(0, 0), 1000);},     
+         	//"bind beast northeast" : function() { return testMove(SE, new Vector(20, 20), SE, 1000);},    
+         	"ordinary move" : function() { return testMove(new Point(90, 90), new Vector(10, -10), new Point(100, 80), 1000);},
+         	"limited speed move" : function() { return testMove(new Point(100, 100), new Vector(60, 80), new Point(130, 140), 50);},
+         	//"beast size" : function() { return result(14, zone.motiles[0].getSize());},
+         	//"flutterbye size" : function() { return result(4, zone.motiles[1].getSize());},
+         	"diagonal normalized vector" : function() { 
+         		var original = new Vector(6, 8);
+         		return areEqual(new Vector(0.6, 0.8), original.normalized(), JSON.stringify(original) + ".normalized:"); 
+         	},
+	        "fold types -> total size" : function() { 
+            var totalSize = Entities.Types.fold (0, function(t, ts) { return ts + t.size;});
+            var isInRange = (totalSize > 50) && (totalSize < 1000);
+            return result(true, isInRange); 
+          },
+	        "count types" : function() { return result(1, Entities.Types.getCounts(zone.motiles)["Beast"]); },
+	        "create registry of Foo" : function() {
+	        	function Foo(){ this.name = 'foo'; };
+	        	var foos = Entities.Types.createRegistryOf(Foo);
+	        	return result("foo,foo=" + Entities.Types.types.length, foos.Beast.name + "," + foos.Flutterbye.name + "=" + foos.types.length);
+	        },
+	        "center point of": function() { return result(crossCenter, Point.centerOf(cross)); },
+	        "manhattan distance": function() { 
+	        	var pt = new Point(-2, 0);
+	        	var expected = [new Point(-2,3), new Point(-1,0), new Point(0, 1)];
+	        	return result(expected, pt.allWithinManhattanDistanceOf(cross.concat([crossCenter]), 3)); 
+	        },
+	        "simple cohere" : function(){ 
+	        	var cohesionRules = { range: 100, force: 10, minRange: 0};
+	        	return areEqual(new Vector(6,-8), Behavior.Flocking.cohere(new Point(-3,5), cross, cohesionRules));
+	        },
+	        "null center point" : function() { return result(new Coords(0,0), Point.centerOf([])); },
+	        "transform motile" : function() { 
+	        	return result(crossCenter, 
+	        			zone.transformMotileById("A1", function (m){ 
+	        		return m.moveTo(crossCenter); }).motiles[0].getPos()); 
+	        },
+	        "TRUTH and FALSITY" : function() { return result(true, TRUTH() && !FALSITY()); },
+	        "TRUTH triumphs over uncertainty" : function() { return result(true, (undefined || TRUTH)());},
+	        "cohesion excluding some flockers" : function() {
+	        	var cohesionRules = { range: 3, force: Math.sqrt(2), minRange: 0};
+	        	return areEqual(new Vector(1,-1), Behavior.Flocking.cohere(new Point(-1,2), cross, cohesionRules));
+	        },
+	        "cohesion too near center" : function() {
+	        	var cohesionRules = { range: 3, force: 5, minRange: 3};
+	        	return areEqual(Vector.NULL, Behavior.Flocking.cohere(new Point(-1,2), cross, cohesionRules));
+	        },
+	        "motivate: drifting motile with no flocking" : function() {
+	        	var wind = new Vector(1,1);
+	        	var testZone = new Zone("TEST", [], 0, wind); //wind pulling SE
+	        	var behavior = new Behavior( {friction: 1.0, life: {} }, "Foo"); //friction will reverse direction of travel
+	        	testZone = testZone.spawnMotile(behavior.spawner, new Point(1,1), "foo1");
+	  			  var motile = testZone.motiles[0];
+	        	motile.identity.getTypeDesc = function() { return { maxSpeed: 1000, maxForce: 1000} };
+	        	var drifted = behavior.motivate(motile.setAcceleration(new Vector(-3,-4)).setVelocity(new Vector(-2,-2)), testZone); //heading SW 
+	        	return areEqual( [new Vector(7, 6), new Vector(-1, -1)], [drifted.acc, drifted.vel],
+	        		"vel (-2-2) + wind(1,1) => vel(-1,-1); acc(-3,-4) + (-2,-2)* friction 1 * (mag 5 * acc) => (-3,-4)+(10,10)  => acc(7,6)"); 
+
+	        },
+          "munch" : function() {
+            var beast = testMotiles[0].setVelocity(Vector.NULL);
+            beast.energy = 80;
+            var flutter = testMotiles[1].setVelocity(Vector.NULL);
+            flutter.life.nutrition = 2;
+            var testZone = new Zone("TEST", [beast], 0);
+            var zoneAfter = testZone.munch(beast, flutter);
+            return areEqual([82.0], zoneAfter.motiles.map(function(m){ return m.getEnergy();}));
+          },
+          "roundtrip collision objects" : function() {
+            var flutter = testMotiles[1].setVelocity(Vector.NULL);
+            flutter.energy = 10;
+            var tripped = Entities.Motile.fromCollidable(flutter.asCollidable());
+            return result(flutter, tripped); 
+          }
+         }
+
+         function tests() {
+             for (var testName in Tests) {
+             	document.write(testName +": ");
+         		try {	
+	         		report(Tests[testName]());
+	         	} catch(err) {
+	         		document.write("EXCEPTION!!!! threw " + err + "<pre>"+ err.stack + "</pre></br>");
+	         	}
+         	}; //TODO catch/throw?
+         }
+
+
+         tests();	
+       </script>
+   </body>
+ </html>
+
+
+
